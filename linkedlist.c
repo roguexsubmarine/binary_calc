@@ -2,7 +2,7 @@
 #include<stdlib.h>
 
 typedef struct node{
-    int data;
+    signed int data;
     struct node *prev, *next;
 }node;
 
@@ -13,6 +13,7 @@ typedef struct list{
 void init_dll(list*);
 int isempty_dll(list);
 void insertright_dll(list*, int);
+void insertleft_dll(list*, int);
 void printlistLR_dll(list*);
 void printlistRL_dll(list*);
 int length_dll(list*);
@@ -54,6 +55,26 @@ void insertright_dll(list *l, int x){
         l->rear = newnode;
     }
     return;
+}
+
+void insertleft_dll(list *l, int x){
+    node *newnode;
+    newnode = (node *)malloc(sizeof(node));
+    newnode->next = NULL;
+    newnode->prev = NULL;
+    newnode->data = x;
+
+    if(isempty_dll(*l)){
+        l->front = newnode;
+        l->rear = newnode;
+    }
+    else{
+        l->front->prev = newnode;
+        newnode->next = l->front;
+        l->front = newnode;
+    }
+    return;
+
 }
 
 void printlistLR_dll(list *l){
@@ -251,10 +272,9 @@ int length(list *l){
     }
     else{
         int x = 1;
-        node *p;
-        p = l->front;
+        node *p = l->front;
         while(p->next != NULL){
-            x++;
+            x = x + 1;
             p = p->next;
         }
         return x;
