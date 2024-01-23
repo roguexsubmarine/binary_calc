@@ -1,4 +1,6 @@
-#include<stdio.h> 
+//612203071 - ABHIJEET J
+
+#include<stdio.h>
 #include<stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -9,8 +11,8 @@
 //initializing a list
 void init(list* l) {
 
-    l->n = NULL;
-    l->tail = NULL;
+    l->front = NULL;
+    l->rear = NULL;
     l->length = 0;
     l->sign = '+';      //default sign set to + if none is entered
     return;
@@ -58,16 +60,16 @@ void append(list *l, int data) {
         return;
     }
 
-    if(l->n == NULL) {                  //if the node to be added is the first node
-        l->n = newnode;
-        l->tail = newnode;
+    if(l->front == NULL) {                  //if the node to be added is the first node
+        l->front = newnode;
+        l->rear = newnode;
         l->length = 1;
         return;
     }
 
-    newnode->prev = l->tail;
-    l->tail->next = newnode;
-    l->tail = newnode;
+    newnode->prev = l->rear;
+    l->rear->next = newnode;
+    l->rear = newnode;
     l->length = l->length + 1;
 
     return;
@@ -75,10 +77,10 @@ void append(list *l, int data) {
 
 
 //add a node to the beginning of the list
-void add_ahead(list* l, int data) {
+void insertleft(list* l, int data) {
 
     node *p, *newnode;
-    p = l->n;
+    p = l->front;
     newnode = (node*)malloc(sizeof(node));          //creating a new node
 
     if(newnode) {
@@ -90,16 +92,16 @@ void add_ahead(list* l, int data) {
         return;
     }
 
-    if(l->n == NULL) {                         //if the node to be added is the first node
-        l->n = newnode;
-        l->tail = newnode;                     //treated as a separate case since tail is modified
+    if(l->front == NULL) {                         //if the node to be added is the first node
+        l->front = newnode;
+        l->rear = newnode;                     //treated as a separate case since rear is modified
         l->length = 1;
         return;
     }
 
     newnode->next = p;
     p->prev = newnode;
-    l->n = newnode;
+    l->front = newnode;
     l->length = l->length + 1;
 
     return;
@@ -131,8 +133,8 @@ list add(list l1, list l2) {
     int s = 0, c = 0;           //sum and carry initialized to zero
 
     node *end1, *end2;          //pointers to the last digit of l1 and l2 respectively
-    end1 = l1.tail;
-    end2 = l2.tail;
+    end1 = l1.rear;
+    end2 = l2.rear;
 
     //adding digit by digit starting from the rightmost digit
     while (end1 != NULL || end2 != NULL) {
@@ -154,12 +156,12 @@ list add(list l1, list l2) {
         }
 
         // inserting the sum digit
-        add_ahead(&l3, s);
+        insertleft(&l3, s);
     }
 
     // inserting last carry
     if (c != 0) {
-        add_ahead(&l3, c);
+        insertleft(&l3, c);
     }
 
     if(l1.sign == '-' && l2.sign == '-') {      //if both the numbers are negative
@@ -181,14 +183,14 @@ list sub(list l1, list l2) {
     rm_zero(&l1);                               //removing preceding zeros if any
     rm_zero(&l2);                               //returns NULL if the number is zero
 
-    if(l1.n == NULL && l2.n == NULL) {          //case:  0 - 0
+    if(l1.front == NULL && l2.front == NULL) {          //case:  0 - 0
         append(&l3, 0);
         return l3;
     }
-    else if(l1.n != NULL && l2.n == NULL) {     //case: num1 - 0
+    else if(l1.front != NULL && l2.front == NULL) {     //case: num1 - 0
         return l1;
     }
-    else if(l1.n == NULL && l2.n != NULL) {     //case: 0 - num2
+    else if(l1.front == NULL && l2.front != NULL) {     //case: 0 - num2
         if(l2.sign == '-'){
             l2.sign = '+';
         }
@@ -215,25 +217,25 @@ list sub(list l1, list l2) {
         }
         if(check < 0) {                         //if the negative number is greater in magnitude
             l3.sign = '-';
-            end2 = l1.tail;
-            end1 = l2.tail;
+            end2 = l1.rear;
+            end1 = l2.rear;
 
         }
         if(check >= 0) {
-            end1 = l1.tail;
-            end2 = l2.tail;
+            end1 = l1.rear;
+            end2 = l2.rear;
         }
     }
     else {                                      //-num1 - (-num2) reverse case
         int check = compare(l1, l2);
         if(check > 0) {                         //if the negative number is greater in magnitude
             l3.sign = '-';
-            end1 = l1.tail;
-            end2 = l2.tail;
+            end1 = l1.rear;
+            end2 = l2.rear;
         }
         if(check <= 0) {
-            end1 = l2.tail;
-            end2 = l1.tail;
+            end1 = l2.rear;
+            end2 = l1.rear;
         }
     }
 
@@ -270,7 +272,7 @@ list sub(list l1, list l2) {
             }
             end1 = end1->prev;
         }
-        add_ahead(&l3, s);
+        insertleft(&l3, s);
     }
 
     return l3;
@@ -289,14 +291,14 @@ list mul(list l1, list l2) {
     int s = 0, c = 0;                   //initialising sum and carry to zero
     node *end2, *endp;                  //pointers to the last digit of l2 and l1 respectively
 
-    end2 = l2.tail;
+    end2 = l2.rear;
 
     while(end2 != NULL) {
 
         init(&ans);
         init(&temp);
 
-        endp = l1.tail;                 //resetting endp to point to the end of l1 after each pass
+        endp = l1.rear;                 //resetting endp to point to the end of l1 after each pass
 
         c = 0;
         s = 0;
@@ -304,12 +306,12 @@ list mul(list l1, list l2) {
         while(endp != NULL) {           //multiplying one digit of l2 with all the digits of l1
             s = ((endp->d) * (end2->d) + c) % 10;
             c = ((endp->d) * (end2->d) + c) / 10;
-            add_ahead(&ans, s);
+            insertleft(&ans, s);
             endp = endp->prev;
         }
 
         if (c != 0) {
-            add_ahead(&ans, c);
+            insertleft(&ans, c);
         }
 
         for (i = 0; i < k; i++) {  //appending zeros to the end of the obtained result corresponding to shift in each pass
@@ -360,8 +362,8 @@ list division(list l1, list l2) {
         int length1 = l1.length;
         int length2 = l2.length;
 
-        node *p = l1.n;         //pointer to the head of l1
-        node *t = l2.n;         //pointer to the head of l2
+        node *p = l1.front;         //pointer to the head of l1
+        node *t = l2.front;         //pointer to the head of l2
 
         while(p->d == 0) {      //ignoring preceding zeros
             p = p->next;
@@ -439,12 +441,12 @@ list division(list l1, list l2) {
             }
 
             else if(r == 0) {               //if r == 0 ie the multiplied divisor is equal to the extracted number
-                append(&quo, q.tail->d);
+                append(&quo, q.rear->d);
                 temp = sub(num, l22);
             }
             else {                          //if the multiplied divisor is greater than the extracted number
                 q = sub(q, j);              //subtracting 1 from q
-                append(&quo, (q.tail->d));
+                append(&quo, (q.rear->d));
                 l22 = sub(l22, l2);
                 temp = sub(num, l22);
             }
@@ -465,8 +467,8 @@ list division(list l1, list l2) {
 int compare(list l1, list l2) {
 
     int c1 = 0, c2 = 0, count_zero = 0, c11 = 0, c22 = 0;
-    node *p = l1.n;
-    node *q = l2.n;
+    node *p = l1.front;
+    node *q = l2.front;
 
     c1 = l1.length;
     c2 = l2.length;
@@ -494,7 +496,7 @@ int compare(list l1, list l2) {
         }
     }
 
-    int comp = (c1 - c11) - (c2 - c22); //comparing the lengths of the numbers(taking preceding zeros into account)
+    int comp = (c1 - c11) - (c2 - c22); //comparing the lengths of the numbers(taking preceding zeros into account) // length - no. of zeros
 
     if(comp < 0) {
         return -1;
@@ -528,7 +530,7 @@ void display(list l) {
         printf("-");
     }
 
-    node *p = l.n;
+    node *p = l.front;
 
     while(p != NULL) {
         printf("%d", p->d);
@@ -958,11 +960,11 @@ void infix_eval(char *s) {
 //removes preceding zeros
 void rm_zero(list *l) {
 
-    node *p = l->n;
+    node *p = l->front;
     while(p != NULL && p->d == 0) {     //checking nullity condition before zero condition
 
         l->length = l->length - 1;
-        l->n = p->next;
+        l->front = p->next;
         p = p->next;
         if(p != NULL) {
             free(p->prev);

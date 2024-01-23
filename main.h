@@ -7,8 +7,8 @@ typedef struct node {
 //list represents the entire number
 typedef struct list {
     int length;
-    char sign;
-    node *tail, *n;
+    char sign;  //to indicate positive or negative
+    node *rear, *front; 
 }list;
 
 //stack for operands
@@ -28,7 +28,7 @@ typedef struct stack_operators{
 // list functions
 void init(list *l);
 void append(list *l, int data);
-void add_ahead(list* l, int data);
+void insertleft(list* l, int data);
 list extract(char* s);
 list add(list l1, list l2);
 list sub(list l1, list l2);
